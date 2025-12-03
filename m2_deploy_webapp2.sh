@@ -4,7 +4,7 @@ log_step() {
     echo -e "[INFO] $1 ... $2"
 }
 # Cambiar hostname del servidor
-NEW_HOSTNAME="simpleapp2"
+NEW_HOSTNAME="webapp2"
 
 hostnamectl set-hostname "$NEW_HOSTNAME" &>/dev/null
 if [ $? -eq 0 ]; then
