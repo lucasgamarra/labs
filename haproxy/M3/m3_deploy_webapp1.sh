@@ -37,6 +37,7 @@ fi
 # 3. Abrir puertos 80 y 443
 firewall-cmd --permanent --add-port=80/tcp &>/dev/null
 firewall-cmd --permanent --add-port=443/tcp &>/dev/null
+firewall-cmd --permanent --add-port=22/tcp &>/dev/null
 firewall-cmd --reload &>/dev/null
 if [ $? -eq 0 ]; then
     log_step "Apertura de puertos 80 y 443 en Firewalld" "OK"

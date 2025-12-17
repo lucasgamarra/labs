@@ -36,6 +36,7 @@ fi
 firewall-cmd --permanent --add-port=80/tcp &>/dev/null
 firewall-cmd --permanent --add-port=443/tcp &>/dev/null
 firewall-cmd --permanent --add-port=8404/tcp &>/dev/null
+firewall-cmd --permanent --add-port=22/tcp &>/dev/null
 firewall-cmd --reload &>/dev/null
 if [ $? -eq 0 ]; then
     log_step "Configuración de Firewall (80, 443, 8404)" "OK"
