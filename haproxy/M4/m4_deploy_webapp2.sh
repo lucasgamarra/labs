@@ -3,6 +3,39 @@
 log_step() {
     echo -e "[INFO] $1 ... $2"
 }
+# ==============================
+# Verificación de Rocky Linux 9
+# ==============================
+
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+
+    if [[ "$ID" == "rocky" && "$VERSION_ID" =~ ^9 ]]; then
+        echo -e "\e[31m"
+        echo "────────────────────────────────────────────────────────────"
+        echo "ATENCIÓN:"
+        echo
+        echo "La versión recomendada para este laboratorio es Rocky Linux 8."
+        echo "Usted ha seleccionado Rocky Linux 9."
+        echo
+        echo "En esta versión se ha identificado un problema conocido que"
+        echo "puede provocar la interrupción de la conexión SSH luego de"
+        echo "instalar determinados paquetes (por ejemplo, git)."
+        echo
+        echo "Para mitigar este inconveniente, se procederá a realizar una"
+        echo "actualización completa del sistema antes de continuar."
+        echo
+        echo "Por favor, aguarde mientras se completa el proceso..."
+        echo "────────────────────────────────────────────────────────────"
+        echo -e "\e[0m"
+
+        dnf update -y
+        if [ $? -ne 0 ]; then
+            echo "[ERROR] Falló la actualización del sistema en Rocky Linux 9"
+            exit 1
+        fi
+    fi
+fi
 # Cambiar hostname del servidor
 NEW_HOSTNAME="webapp2"
 

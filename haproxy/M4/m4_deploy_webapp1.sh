@@ -4,7 +4,44 @@ log_step() {
     echo -e "[INFO] $1 ... $2"
 }
 
-# Cambiar hostname del servidor
+# ==============================
+# Verificación de Rocky Linux 9
+# ==============================
+
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+
+    if [[ "$ID" == "rocky" && "$VERSION_ID" =~ ^9 ]]; then
+        echo -e "\e[31m"
+        echo "────────────────────────────────────────────────────────────"
+        echo "ATENCIÓN:"
+        echo
+        echo "La versión recomendada para este laboratorio es Rocky Linux 8."
+        echo "Usted ha seleccionado Rocky Linux 9."
+        echo
+        echo "En esta versión se ha identificado un problema conocido que"
+        echo "puede provocar la interrupción de la conexión SSH luego de"
+        echo "instalar determinados paquetes (por ejemplo, git)."
+        echo
+        echo "Para mitigar este inconveniente, se procederá a realizar una"
+        echo "actualización completa del sistema antes de continuar."
+        echo
+        echo "Por favor, aguarde mientras se completa el proceso..."
+        echo "────────────────────────────────────────────────────────────"
+        echo -e "\e[0m"
+
+        dnf update -y
+        if [ $? -ne 0 ]; then
+            echo "[ERROR] Falló la actualización del sistema en Rocky Linux 9"
+            exit 1
+        fi
+    fi
+fi
+
+# ==============================
+# Cambio de hostname
+# ==============================
+
 NEW_HOSTNAME="webapp1"
 
 hostnamectl set-hostname "$NEW_HOSTNAME" &>/dev/null
@@ -15,7 +52,10 @@ else
     exit 1
 fi
 
-# 1. Instalar Apache, Firewalld y Vim
+# ==============================
+# Instalación de paquetes
+# ==============================
+
 yum install -y httpd firewalld vim &>/dev/null
 if [ $? -eq 0 ]; then
     log_step "Instalación de Apache, Firewalld y Vim" "OK"
@@ -24,7 +64,10 @@ else
     exit 1
 fi
 
-# 2. Habilitar servicios
+# ==============================
+# Habilitación de servicios
+# ==============================
+
 systemctl enable --now httpd &>/dev/null
 systemctl enable --now firewalld &>/dev/null
 if [ $? -eq 0 ]; then
@@ -34,19 +77,25 @@ else
     exit 1
 fi
 
-# 3. Abrir puertos 80 y 443
+# ==============================
+# Configuración de Firewalld
+# ==============================
+
 firewall-cmd --permanent --add-port=80/tcp &>/dev/null
 firewall-cmd --permanent --add-port=443/tcp &>/dev/null
 firewall-cmd --permanent --add-port=22/tcp &>/dev/null
 firewall-cmd --reload &>/dev/null
 if [ $? -eq 0 ]; then
-    log_step "Apertura de puertos 80 y 443 en Firewalld" "OK"
+    log_step "Apertura de puertos 80, 443 y 22 en Firewalld" "OK"
 else
-    log_step "Apertura de puertos 80 y 443" "FALLO"
+    log_step "Apertura de puertos en Firewalld" "FALLO"
     exit 1
 fi
 
-# 4. Crear página web APP1 con color azul
+# ==============================
+# Página web APP1
+# ==============================
+
 cat > /var/www/html/index.html << 'EOF'
 <!DOCTYPE html>
 <html>
@@ -83,7 +132,10 @@ else
     exit 1
 fi
 
-# 5. Reiniciar Apache
+# ==============================
+# Reinicio de Apache
+# ==============================
+
 systemctl restart httpd &>/dev/null
 if [ $? -eq 0 ]; then
     log_step "Reinicio del servicio Apache" "OK"
@@ -92,7 +144,10 @@ else
     exit 1
 fi
 
-# 6. Probar con curl
+# ==============================
+# Prueba de acceso local
+# ==============================
+
 curl -s http://localhost | grep -q "APP1"
 if [ $? -eq 0 ]; then
     log_step "Prueba de acceso con curl" "OK"
