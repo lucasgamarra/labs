@@ -30,7 +30,7 @@ if [ -f /etc/os-release ]; then
         echo "────────────────────────────────────────────────────────────"
         echo -e "\e[0m"
 
-        dnf update -y
+        dnf update -y &>/dev/null
         if [ $? -ne 0 ]; then
             echo "[ERROR] Falló la actualización del sistema en Rocky Linux 9"
             exit 1
